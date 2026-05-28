@@ -11,6 +11,12 @@ export interface Signal {
   providerId?: string;
   providerStake?: number;
   providerReputation?: number;
+  /** Whether this signal requires a premium stake to access */
+  isPremium?: boolean;
+  /** Whether the current user meets the stake requirement */
+  hasAccess?: boolean;
+  /** Minimum XLM stake required to unlock */
+  requiredStake?: number;
 }
 
 export interface SignalProvider {

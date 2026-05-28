@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { WalletDropdown } from "@/components/WalletDropdown";
 import { WalletSelectionModal } from "@/components/WalletSelectionModal";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -52,6 +53,7 @@ export function Navbar() {
 
           {/* Language Selector & Wallet CTA */}
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <LanguageSelector />
             {connected ? (
               <WalletDropdown />

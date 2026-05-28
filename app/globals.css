@@ -115,6 +115,46 @@
     --accent-warning:  25 95% 53%;
     --accent-market:   239 84% 67%;
   }
+
+  /* Light theme — applied when <html class="light"> */
+  .light {
+    --background:     0 0% 98%;
+    --surface:        0 0% 100%;
+    --surface-high:   220 14% 96%;
+    --overlay:        0 0% 0%;
+
+    --foreground:        222 47% 11%;
+    --foreground-muted:  215 16% 47%;
+    --foreground-subtle: 215 14% 65%;
+
+    --border:        220 13% 88%;
+    --border-strong: 220 13% 75%;
+    --input:         0 0% 100%;
+    --ring:          217 91% 60%;
+
+    --accent-primary:  217 91% 60%;
+    --accent-sky:      199 89% 48%;
+    --accent-success:  160 84% 32%;
+    --accent-danger:   0  72% 51%;
+    --accent-warning:  25 95% 45%;
+    --accent-market:   239 84% 60%;
+
+    /* shadcn/ui compat aliases */
+    --card:                var(--surface);
+    --card-foreground:     var(--foreground);
+    --popover:             var(--surface);
+    --popover-foreground:  var(--foreground);
+    --primary:             var(--accent-primary);
+    --primary-foreground:  210 40% 98%;
+    --secondary:           var(--surface-high);
+    --secondary-foreground:var(--foreground);
+    --muted:               var(--surface-high);
+    --muted-foreground:    var(--foreground-muted);
+    --accent:              var(--surface-high);
+    --accent-foreground:   var(--foreground);
+    --destructive:         var(--accent-danger);
+    --destructive-foreground: 210 40% 98%;
+  }
 }
 
 @layer base {

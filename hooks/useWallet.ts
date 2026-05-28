@@ -9,7 +9,7 @@ import {
 } from "@stellar/freighter-api";
 import { useWalletStore } from "@/store/useWalletStore";
 import { NETWORK_PASSPHRASE } from "@/lib/stellar";
-import { toast } from "@/lib/toast";
+import { walletToast } from "@/lib/walletToast";
 import { traceWorker } from "@/src/tracing/worker-tracing.service";
 import analyticsService from "@/services/analytics";
 
@@ -42,7 +42,7 @@ export function useWallet() {
       setIsConnecting(true);
       const connectedResponse = await isConnected();
       if (!connectedResponse?.isConnected) {
-        toast.error("Freighter wallet not found. Please install it.");
+        walletToast.notFound();
         analyticsService.track('wallet_connect_failed', {
           wallet_type: 'freighter',
           reason: 'not_found',
@@ -54,7 +54,7 @@ export function useWallet() {
       const key = typeof result === "string" ? result : result.address;
       setPublicKey(key);
       setConnected(true);
-      toast.success("Wallet connected");
+      walletToast.connected(key);
       analyticsService.track('wallet_connected', {
         wallet_type: 'freighter',
       });
@@ -63,13 +63,13 @@ export function useWallet() {
       );
     } catch (err) {
       if (isUserRejection(err)) {
-        toast.info("Connection request declined.");
+        walletToast.denied();
         analyticsService.track('wallet_connect_failed', {
           wallet_type: 'freighter',
           reason: 'user_rejected',
         });
       } else {
-        toast.error("Failed to connect wallet.");
+        walletToast.connectError();
         console.error(err);
         analyticsService.track('wallet_connect_failed', {
           wallet_type: 'freighter',
@@ -94,10 +94,10 @@ export function useWallet() {
       return typeof result === "string" ? result : result.signedTxXdr;
     } catch (err) {
       if (isUserRejection(err)) {
-        toast.info("Transaction signing declined.");
+        walletToast.signingDenied();
         throw err;
       }
-      toast.error("Failed to sign transaction.");
+      walletToast.signError();
       console.error(err);
       throw err;
     } finally {
@@ -107,7 +107,7 @@ export function useWallet() {
 
   function disconnectWallet() {
     disconnect();
-    toast.info("Wallet disconnected");
+    walletToast.disconnected();
     window.dispatchEvent(new CustomEvent("wallet-disconnected"));
   }
 

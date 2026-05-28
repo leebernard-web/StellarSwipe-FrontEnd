@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Info } from "lucide-react";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { useDemoModeStore } from "@/store/useDemoModeStore";
+import { FeeDisclosurePanel } from "@/components/FeeDisclosurePanel";
 
 type OrderType = "LIMIT" | "MARKET";
 
@@ -272,6 +273,9 @@ export function TradeModal({ open, onClose, onConfirm, walletBalance = 250, mark
                 </span>
               </div>
             </div>
+            {/* Fee disclosure */}
+            <FeeDisclosurePanel tradeTotal={total} className="mt-4" />
+
             {/* Fee breakdown */}
             <div className="mt-4 rounded-lg bg-white/3 border border-white/6 px-3 py-3 text-sm sm:px-4">
               <div className="flex items-center justify-between">

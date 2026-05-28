@@ -99,6 +99,7 @@ import { TradeSkeleton } from "@/components/TradeSkeleton";
 import { TradeModal } from "@/components/TradeModal";
 import { cn } from "@/lib/utils";
 import { MiniChart } from "./chart/MiniChart";
+import { PremiumSignalBadge } from "@/components/PremiumSignalBadge";
 import { useDemoModeStore } from "@/store/useDemoModeStore";
 import analyticsService from "@/services/analytics";
 
@@ -118,6 +119,9 @@ interface SignalCardProps {
   timestamp?: Date;
   providerStake?: number;
   providerReputation?: number;
+  isPremium?: boolean;
+  hasAccess?: boolean;
+  requiredStake?: number;
   onTrade?: (price: number) => void;
   onPass?: () => void;
 }
@@ -141,6 +145,9 @@ export function SignalCard({
   timestamp = new Date(Date.now() - 5 * 60 * 1000),
   providerStake,
   providerReputation,
+  isPremium = false,
+  hasAccess = true,
+  requiredStake = 1000,
   onTrade,
   onPass,
 }: SignalCardProps) {
@@ -304,7 +311,12 @@ export function SignalCard({
             aria-label={`${signal} signal for ${pair} at ${executionPrice} with ${confidence}% confidence`}
           >
             <div className="flex items-center justify-between gap-2 flex-wrap">
-              <span className="font-semibold text-base sm:text-lg">{pair}</span>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-base sm:text-lg">{pair}</span>
+                {isPremium && (
+                  <PremiumSignalBadge hasAccess={hasAccess} requiredStake={requiredStake} />
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <div className="relative" ref={shareMenuRef}>
                   <Button
@@ -371,6 +383,15 @@ export function SignalCard({
 
             <p className="text-sm text-muted-foreground leading-relaxed">{analysis}</p>
 
+            {isPremium && !hasAccess && (
+              <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 px-3 py-2.5 text-sm">
+                <p className="font-medium text-yellow-400">Premium signal locked</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Stake at least {requiredStake.toLocaleString()} XLM to unlock full analysis and trade execution.
+                </p>
+              </div>
+            )}
+
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <SignalTimestamp updatedAt={timestamp} />
               <p className="text-xs text-muted-foreground">
@@ -392,9 +413,9 @@ export function SignalCard({
               <Button
                 size="sm"
                 onClick={handleExecuteTrade}
-                disabled={modalOpen}
+                disabled={modalOpen || (isPremium && !hasAccess)}
                 className="flex-1 active:scale-95"
-                aria-label={`Execute trade: ${signal} signal for ${pair} at ${executionPrice}${isDemoMode ? " (demo)" : ""}`}
+                aria-label={`Execute trade: ${signal} signal for ${pair} at ${executionPrice}${isDemoMode ? " (demo)" : ""}${isPremium && !hasAccess ? " (locked — stake required)" : ""}`}
               >
                 <Zap size={16} className="mr-1" />
                 {isDemoMode ? "Demo Trade" : "Execute Trade"}
