@@ -32,6 +32,9 @@ export function SignalFeed() {
   const [providerSearch, setProviderSearch] = useState(provider);
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
 
+  // Track whether the last auto-load attempt failed so we can show the manual fallback
+  const [autoLoadFailed, setAutoLoadFailed] = useState(false);
+
   const {
     data,
     isLoading,
@@ -53,9 +56,7 @@ export function SignalFeed() {
     },
     getNextPageParam: (lastPage: SignalResponse) => lastPage.nextPage,
     initialPageParam: 1,
-    // #98: cache pages for 5 minutes to avoid re-fetching recently viewed content
     staleTime: STALE_TIME,
-    // #98: keep previous data while fetching next page for smooth loading
     placeholderData: (prev) => prev,
   });
 
@@ -97,19 +98,29 @@ export function SignalFeed() {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const loadMore = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+    if (hasNextPage && !isFetchingNextPage) {
+      setAutoLoadFailed(false);
+      fetchNextPage().catch(() => setAutoLoadFailed(true));
+    }
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  // Manual fallback: called from the button when auto-scroll failed
+  const handleManualLoadMore = useCallback(() => {
+    setAutoLoadFailed(false);
+    fetchNextPage().catch(() => setAutoLoadFailed(true));
+  }, [fetchNextPage]);
 
   useEffect(() => {
     const element = sentinelRef.current;
-    if (!element || !hasNextPage || isFetchingNextPage) return;
+    // If auto-load previously failed, don't re-trigger via IntersectionObserver
+    if (!element || !hasNextPage || isFetchingNextPage || autoLoadFailed) return;
     const observer = new IntersectionObserver(
       (entries) => { if (entries[0]?.isIntersecting) loadMore(); },
       { rootMargin: "240px" }
     );
     observer.observe(element);
     return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, loadMore]);
+  }, [hasNextPage, isFetchingNextPage, loadMore, autoLoadFailed]);
 
   // #99: sync provider search to filter store
   const handleProviderSearch = useCallback((value: string) => {
@@ -296,15 +307,23 @@ export function SignalFeed() {
           </p>
         )}
 
-        {hasNextPage && (
-          <Button
-            variant="outline"
-            onClick={loadMore}
-            disabled={isFetchingNextPage}
-            aria-label={isFetchingNextPage ? "Loading more signals" : "Load more signals"}
-          >
-            {isFetchingNextPage ? "Loading more..." : "Load more signals"}
-          </Button>
+        {/* Fallback button: shown when auto-scroll failed OR as a manual preference */}
+        {hasNextPage && (autoLoadFailed || !isFetchingNextPage) && (
+          <div className="flex flex-col items-center gap-2">
+            {autoLoadFailed && (
+              <p className="text-xs text-amber-400" role="alert" aria-live="assertive">
+                Auto-load failed. Load more manually.
+              </p>
+            )}
+            <Button
+              variant="outline"
+              onClick={handleManualLoadMore}
+              disabled={isFetchingNextPage}
+              aria-label={isFetchingNextPage ? "Loading more signals" : "Load more signals"}
+            >
+              {isFetchingNextPage ? "Loading more..." : "Load more signals"}
+            </Button>
+          </div>
         )}
       </div>
     </section>
