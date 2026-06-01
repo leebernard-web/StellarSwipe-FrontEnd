@@ -101,6 +101,7 @@ export function SignalCard({
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [copiedFeedback, setCopiedFeedback] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [actionAnnouncement, setActionAnnouncement] = useState("");
   const { isDemoMode } = useDemoModeStore();
   const fmt = usePriceFormat();
   const executingRef = useRef(false);
@@ -145,6 +146,7 @@ export function SignalCard({
   const isPositive = parseFloat(roi) >= 0;
 
   function handlePass() {
+    setActionAnnouncement(`Passed on ${signalAction} signal for ${signalPair}`);
     setDismissed(true);
     onPass?.();
   }
@@ -152,6 +154,7 @@ export function SignalCard({
   function handleExecuteTrade() {
     if (executingRef.current) return;
     executingRef.current = true;
+    setActionAnnouncement(`Opening trade modal for ${signalAction} ${signalPair}`);
     setModalOpen(true);
   }
 
@@ -172,10 +175,12 @@ export function SignalCard({
   }
 
   function handleKeyDown(e: KeyboardEvent) {
-    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+    if (e.key === "ArrowLeft") {
       e.preventDefault();
-      if (e.key === "ArrowLeft") handlePass();
-      else handleExecuteTrade();
+      handlePass();
+    } else if (e.key === "ArrowRight" || e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleExecuteTrade();
     }
   }
 
@@ -299,6 +304,16 @@ export function SignalCard({
             </span>
           </motion.div>
 
+          {/* ARIA live region — announces pass/trade actions to screen readers */}
+          <div
+            role="status"
+            aria-live="assertive"
+            aria-atomic="true"
+            className="sr-only"
+          >
+            {actionAnnouncement}
+          </div>
+
           <article
             className={cn(
               "w-full rounded-2xl border bg-card p-4 shadow-sm flex flex-col gap-3 sm:p-5 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-background",
@@ -307,7 +322,7 @@ export function SignalCard({
             tabIndex={0}
             onKeyDown={handleKeyDown}
             role="article"
-            aria-label={`${signalAction} signal for ${signalPair} at ${executionPrice} with ${signalConfidence}% confidence`}
+            aria-label={`${signalAction} signal for ${signalPair} at ${executionPrice} with ${signalConfidence}% confidence. Press Enter or right arrow to trade, left arrow to pass.`}
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex flex-col gap-2">
@@ -451,7 +466,7 @@ export function SignalCard({
 
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <SignalTimestamp updatedAt={signalTimestamp} />
-              <p className="text-xs text-muted-foreground">Swipe or use ← → keys</p>
+              <p className="text-xs text-muted-foreground" aria-hidden="true">← Pass &nbsp;|&nbsp; Enter / → Trade</p>
             </div>
 
             <div className="flex gap-2 pt-2">
