@@ -1,4 +1,5 @@
 export type SignalAction = "BUY" | "SELL" | "HOLD";
+export type SignalStatus = "Active" | "Waiting" | "Closed";
 
 export interface Signal {
   id: string;
@@ -9,6 +10,10 @@ export interface Signal {
   timestamp: string;
   /** ISO timestamp after which the signal is considered expired / no longer actionable */
   expiresAt?: string;
+  /** Name of the signal provider */
+  provider?: string;
+  /** Current execution state of the signal */
+  status?: SignalStatus;
 }
 
 export interface SignalFeedPage {
@@ -22,6 +27,11 @@ export interface SignalFeedPage {
 
 const signalTickers = ["XLM", "BTC", "ETH", "USDC", "ADA", "SOL", "DOT", "MATIC", "ATOM", "LUNA"];
 const signalActions: SignalAction[] = ["BUY", "SELL", "HOLD"];
+const signalStatuses: SignalStatus[] = ["Active", "Waiting", "Closed"];
+const signalProviders = [
+  "AlphaWave", "OrionSignals", "NebulaAI", "QuantPulse", "StellarEdge",
+  "NovaTrade", "ZenithFX", "PolarSignals", "ApexQuant", "CosmicAlpha",
+];
 const signalDetails = [
   "Momentum building after a strong volume breakout.",
   "Price action suggests a reversal setup near support.",
@@ -58,6 +68,8 @@ export function buildSignalPage(page = 1, pageSize = 10): SignalFeedPage {
       details,
       timestamp,
       expiresAt,
+      provider: signalProviders[index % signalProviders.length],
+      status: signalStatuses[index % signalStatuses.length],
     };
   });
 
