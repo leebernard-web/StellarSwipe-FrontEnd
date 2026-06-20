@@ -344,7 +344,7 @@ export function SignalFeed() {
               <article
                 key={signal.id}
                 tabIndex={0}
-                aria-label={`${signal.ticker} ${signal.action} signal, ${signal.confidence}% confidence${isExpired ? ", expired" : ""}. Use arrow keys to navigate between signals.`}
+                aria-label={`${signal.ticker} ${signal.action} signal, ${signal.confidence}% confidence${signal.provider ? `, provider ${signal.provider}` : ""}${signal.status ? `, status ${signal.status}` : ""}${isExpired ? ", expired" : ""}. Use arrow keys to navigate between signals.`}
                 className="rounded-3xl border border-white/10 bg-slate-950/90 p-4 shadow-sm shadow-slate-950/20 transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 sm:p-6"
               >
                 {/* Expired banner — shown above content, clearly visible */}
@@ -368,6 +368,30 @@ export function SignalFeed() {
                       <h3 className="mt-2 text-base font-semibold tracking-tight text-white sm:text-xl">
                         {signal.ticker} • {signal.action}
                       </h3>
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        {signal.provider && (
+                          <span
+                            className="inline-flex items-center rounded-md bg-sky-500/10 px-2 py-0.5 text-[11px] font-medium text-sky-300 ring-1 ring-inset ring-sky-500/20"
+                            aria-label={`Provider: ${signal.provider}`}
+                          >
+                            {signal.provider}
+                          </span>
+                        )}
+                        {signal.status && (
+                          <span
+                            className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset ${
+                              signal.status === "Active"
+                                ? "bg-emerald-500/10 text-emerald-300 ring-emerald-500/20"
+                                : signal.status === "Waiting"
+                                ? "bg-amber-500/10 text-amber-300 ring-amber-500/20"
+                                : "bg-slate-500/10 text-slate-400 ring-slate-500/20"
+                            }`}
+                            aria-label={`Status: ${signal.status}`}
+                          >
+                            {signal.status}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     {/* #101: confidence badge with aria-label */}
                     <div
