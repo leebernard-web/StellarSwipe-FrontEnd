@@ -106,6 +106,7 @@ export function SignalCard({
   const [copiedFeedback, setCopiedFeedback] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
+  const [actionAnnouncement, setActionAnnouncement] = useState("");
   const shouldReduceMotion = useReducedMotion();
   const { isDemoMode } = useDemoModeStore();
   const fmt = usePriceFormat();
@@ -144,6 +145,37 @@ export function SignalCard({
   const deltaLabel = `${deltaPercent >= 0 ? "+" : ""}${deltaPercent.toFixed(2)}%`;
   const deltaAbsLabel = `${deltaValue >= 0 ? "+" : ""}${deltaValue.toFixed(4)}`;
   const deltaPositive = deltaValue >= 0;
+
+  useEffect(() => {
+    if (!copiedFeedback) return;
+    const timer = window.setTimeout(() => setCopiedFeedback(false), 2000);
+    return () => clearTimeout(timer);
+  }, [copiedFeedback]);
+
+  useEffect(() => {
+    return x.on("change", (latest) => {
+      const abs = Math.abs(latest);
+      if (abs >= SWIPE_THRESHOLD && !hasVibratedRef.current) {
+        hasVibratedRef.current = true;
+        navigator.vibrate?.(8);
+      } else if (abs < SWIPE_THRESHOLD * 0.6) {
+        hasVibratedRef.current = false;
+      }
+    });
+  }, [x]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target as Node)) {
+        setShowShareMenu(false);
+      }
+    }
+
+    if (showShareMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [showShareMenu]);
 
   if (loading) return <TradeSkeleton />;
 
@@ -214,37 +246,6 @@ export function SignalCard({
     }
     setShowShareMenu(false);
   }
-
-  useEffect(() => {
-    if (!copiedFeedback) return;
-    const timer = window.setTimeout(() => setCopiedFeedback(false), 2000);
-    return () => clearTimeout(timer);
-  }, [copiedFeedback]);
-
-  useEffect(() => {
-    return x.on("change", (latest) => {
-      const abs = Math.abs(latest);
-      if (abs >= SWIPE_THRESHOLD && !hasVibratedRef.current) {
-        hasVibratedRef.current = true;
-        navigator.vibrate?.(8);
-      } else if (abs < SWIPE_THRESHOLD * 0.6) {
-        hasVibratedRef.current = false;
-      }
-    });
-  }, [x]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target as Node)) {
-        setShowShareMenu(false);
-      }
-    }
-
-    if (showShareMenu) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [showShareMenu]);
 
   function handleDragEnd(_: unknown, info: PanInfo) {
     const offsetX = info.offset.x;
