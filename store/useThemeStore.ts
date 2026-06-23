@@ -20,7 +20,6 @@ export const useThemeStore = create<ThemeState>()(
     }),
     {
       name: "stellar-theme",
-      getStorage: () => (typeof window !== "undefined" ? localStorage : undefined),
     }
   )
 );

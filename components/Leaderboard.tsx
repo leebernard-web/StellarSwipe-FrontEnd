@@ -1,5 +1,5 @@
 import React from "react";
-import { useLeaderboardStore } from "../store/leaderboardStore";
+import { useLeaderboardStore, type LeaderboardEntry } from "../store/leaderboardStore";
 import { formatNumber } from "../lib/utils";
 
 export const Leaderboard: React.FC = () => {
@@ -27,7 +27,7 @@ export const Leaderboard: React.FC = () => {
         Community Leaderboard
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {rankings.map((entry) => (
+        {rankings.map((entry: LeaderboardEntry) => (
           <article
             key={entry.id}
             className="p-4 bg-white bg-opacity-70 backdrop-filter backdrop-blur-lg rounded-xl shadow hover:shadow-xl transition-shadow"

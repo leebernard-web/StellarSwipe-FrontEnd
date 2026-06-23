@@ -89,14 +89,6 @@ export function TradeModal({
   const exceedsPositionLimit =
     positionLimitEnabled && positionLimitInUSD !== null && total > positionLimitInUSD;
   const hasErrors = !!amountError || (type === "LIMIT" && !!limitPriceError);
-  const disabled =
-    !amount ||
-    (type === "LIMIT" && !limitPrice) ||
-    insufficient ||
-    exceedsPositionLimit ||
-    submitting ||
-    hasErrors ||
-    showSlippageWarning;
 
   // Estimate slippage: market orders use a fixed proxy; limit orders use
   // the deviation between the user's limit price and the current market price.
@@ -109,6 +101,15 @@ export function TradeModal({
   const SLIPPAGE_THRESHOLD = 1; // percent
   const showSlippageWarning =
     estimatedSlippage > SLIPPAGE_THRESHOLD && !slippageAcknowledged && !!amount;
+
+  const disabled =
+    !amount ||
+    (type === "LIMIT" && !limitPrice) ||
+    insufficient ||
+    exceedsPositionLimit ||
+    submitting ||
+    hasErrors ||
+    showSlippageWarning;
 
   // Reset form state when modal opens
   useEffect(() => {
@@ -159,7 +160,7 @@ export function TradeModal({
     setSubmitting(true);
     await mockBuildTx({ type, price, amount, stopLoss, positionLimit });
     setSubmitting(false);
-    onConfirm ? onConfirm() : onClose();
+    onConfirm ? onConfirm({ amount, price, orderType: type }) : onClose();
   }, [type, price, amount, stopLoss, positionLimit, onClose, onConfirm, disabled]);
 
   // Announce order-type changes to screen readers via live region
