@@ -1,5 +1,6 @@
 # StellarSwipe-FrontEnd
 
+[![CI](https://github.com/AgesEmpire/StellarSwipe-FrontEnd/actions/workflows/ci.yml/badge.svg)](https://github.com/AgesEmpire/StellarSwipe-FrontEnd/actions/workflows/ci.yml)
 
 ## Overview
 
