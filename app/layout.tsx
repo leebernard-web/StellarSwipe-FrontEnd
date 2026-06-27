@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Navbar } from "@/components/Navbar";
@@ -7,16 +6,7 @@ import { PageTransitionPlaceholder } from "@/components/PageTransitionPlaceholde
 import { TradeStatusBanner } from "@/components/TradeStatusBanner";
 import { DevPerfOverlay } from "@/components/DevPerfOverlay";
 import { ScrollRestoration } from "@/components/ScrollRestoration";
-
-const inter = Inter({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-});
+import { WebVitalsReporting } from "@/components/WebVitalsReporting";
 
 export const metadata: Metadata = {
   title: "StellarSwipe",
@@ -38,9 +28,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
+      <body className="antialiased">
         <Providers>
           <ScrollRestoration />
+          <WebVitalsReporting />
           <Navbar />
           <PageTransitionPlaceholder />
           {children}
